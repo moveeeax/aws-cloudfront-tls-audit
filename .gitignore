@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+/.venv/
+/venv/
+/build/
+/dist/
+/*.egg-info/
+.pytest_cache/
+.coverage
+cfg.json
+
+# The recorded fixtures are part of the test suite: never let a stray pattern
+# above swallow them. Keep these negations narrow — a bare `!tests/**` would
+# also drag __pycache__ back in.
+!examples/*.json

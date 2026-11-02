@@ -1,0 +1,447 @@
+{
+  "DistributionList": {
+    "Marker": "",
+    "MaxItems": 100,
+    "IsTruncated": false,
+    "Quantity": 4,
+    "Items": [
+      {
+        "Id": "E1DEFAULTCERTAAA",
+        "ARN": "arn:aws:cloudfront::123456789012:distribution/E1DEFAULTCERTAAA",
+        "Status": "Deployed",
+        "LastModifiedTime": "2026-10-28T09:14:02+00:00",
+        "DomainName": "e1defaultcertaaa.cloudfront.net",
+        "Aliases": {
+          "Quantity": 2,
+          "Items": [
+            "cdn.example.com",
+            "www.example.com"
+          ]
+        },
+        "Origins": {
+          "Quantity": 1,
+          "Items": [
+            {
+              "Id": "origin-www",
+              "DomainName": "www-alb.example.com",
+              "OriginPath": "",
+              "CustomHeaders": {
+                "Quantity": 0
+              },
+              "CustomOriginConfig": {
+                "HTTPPort": 80,
+                "HTTPSPort": 443,
+                "OriginProtocolPolicy": "https-only",
+                "OriginSslProtocols": {
+                  "Quantity": 1,
+                  "Items": [
+                    "TLSv1.2"
+                  ]
+                },
+                "OriginReadTimeout": 30,
+                "OriginKeepaliveTimeout": 5
+              }
+            }
+          ]
+        },
+        "DefaultCacheBehavior": {
+          "TargetOriginId": "origin-www",
+          "ViewerProtocolPolicy": "redirect-to-https",
+          "TrustedSigners": {
+            "Enabled": false,
+            "Quantity": 0
+          },
+          "ForwardedValues": {
+            "QueryString": false,
+            "Cookies": {
+              "Forward": "none"
+            },
+            "Headers": {
+              "Quantity": 0
+            },
+            "QueryStringCacheKeys": {
+              "Quantity": 0
+            }
+          },
+          "MinTTL": 0,
+          "Compress": true
+        },
+        "CacheBehaviors": {
+          "Quantity": 0,
+          "Items": []
+        },
+        "CustomErrorResponses": {
+          "Quantity": 0
+        },
+        "Comment": "marketing site, migrated from the wizard in 2017",
+        "PriceClass": "PriceClass_All",
+        "Enabled": true,
+        "ViewerCertificate": {
+          "CloudFrontDefaultCertificate": true,
+          "MinimumProtocolVersion": "TLSv1",
+          "CertificateSource": "cloudfront"
+        },
+        "Restrictions": {
+          "GeoRestriction": {
+            "RestrictionType": "none",
+            "Quantity": 0
+          }
+        },
+        "WebACLId": "",
+        "HttpVersion": "http2",
+        "IsIPV6Enabled": true,
+        "Staging": false
+      },
+      {
+        "Id": "E2WEAKTLSBBBBBB",
+        "ARN": "arn:aws:cloudfront::123456789012:distribution/E2WEAKTLSBBBBBB",
+        "Status": "Deployed",
+        "LastModifiedTime": "2026-10-28T09:14:02+00:00",
+        "DomainName": "e2weaktlsbbbbbb.cloudfront.net",
+        "Aliases": {
+          "Quantity": 1,
+          "Items": [
+            "api.example.com"
+          ]
+        },
+        "Origins": {
+          "Quantity": 1,
+          "Items": [
+            {
+              "Id": "origin-api",
+              "DomainName": "api-alb.example.com",
+              "OriginPath": "",
+              "CustomHeaders": {
+                "Quantity": 0
+              },
+              "CustomOriginConfig": {
+                "HTTPPort": 80,
+                "HTTPSPort": 443,
+                "OriginProtocolPolicy": "match-viewer",
+                "OriginSslProtocols": {
+                  "Quantity": 1,
+                  "Items": [
+                    "TLSv1.2"
+                  ]
+                },
+                "OriginReadTimeout": 30,
+                "OriginKeepaliveTimeout": 5
+              }
+            }
+          ]
+        },
+        "DefaultCacheBehavior": {
+          "TargetOriginId": "origin-api",
+          "ViewerProtocolPolicy": "allow-all",
+          "TrustedSigners": {
+            "Enabled": false,
+            "Quantity": 0
+          },
+          "ForwardedValues": {
+            "QueryString": false,
+            "Cookies": {
+              "Forward": "none"
+            },
+            "Headers": {
+              "Quantity": 0
+            },
+            "QueryStringCacheKeys": {
+              "Quantity": 0
+            }
+          },
+          "MinTTL": 0,
+          "Compress": true
+        },
+        "CacheBehaviors": {
+          "Quantity": 3,
+          "Items": [
+            {
+              "TargetOriginId": "origin-api",
+              "ViewerProtocolPolicy": "allow-all",
+              "TrustedSigners": {
+                "Enabled": false,
+                "Quantity": 0
+              },
+              "ForwardedValues": {
+                "QueryString": false,
+                "Cookies": {
+                  "Forward": "none"
+                },
+                "Headers": {
+                  "Quantity": 0
+                },
+                "QueryStringCacheKeys": {
+                  "Quantity": 0
+                }
+              },
+              "MinTTL": 0,
+              "Compress": true,
+              "PathPattern": "/api/*"
+            },
+            {
+              "TargetOriginId": "origin-api",
+              "ViewerProtocolPolicy": "redirect-to-https",
+              "TrustedSigners": {
+                "Enabled": false,
+                "Quantity": 0
+              },
+              "ForwardedValues": {
+                "QueryString": false,
+                "Cookies": {
+                  "Forward": "none"
+                },
+                "Headers": {
+                  "Quantity": 0
+                },
+                "QueryStringCacheKeys": {
+                  "Quantity": 0
+                }
+              },
+              "MinTTL": 0,
+              "Compress": true,
+              "PathPattern": "/api/v2/*"
+            },
+            {
+              "TargetOriginId": "origin-api",
+              "ViewerProtocolPolicy": "allow-all",
+              "TrustedSigners": {
+                "Enabled": false,
+                "Quantity": 0
+              },
+              "ForwardedValues": {
+                "QueryString": false,
+                "Cookies": {
+                  "Forward": "none"
+                },
+                "Headers": {
+                  "Quantity": 0
+                },
+                "QueryStringCacheKeys": {
+                  "Quantity": 0
+                }
+              },
+              "MinTTL": 0,
+              "Compress": true,
+              "PathPattern": "/static/*"
+            }
+          ]
+        },
+        "CustomErrorResponses": {
+          "Quantity": 0
+        },
+        "Comment": "legacy api edge",
+        "PriceClass": "PriceClass_All",
+        "Enabled": true,
+        "ViewerCertificate": {
+          "ACMCertificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/9f1c0e2a-7b44-4d19-93a1-2f0c9e8a1b33",
+          "SSLSupportMethod": "sni-only",
+          "MinimumProtocolVersion": "TLSv1.1_2016",
+          "Certificate": "arn:aws:acm:us-east-1:123456789012:certificate/9f1c0e2a-7b44-4d19-93a1-2f0c9e8a1b33",
+          "CertificateSource": "acm"
+        },
+        "Restrictions": {
+          "GeoRestriction": {
+            "RestrictionType": "none",
+            "Quantity": 0
+          }
+        },
+        "WebACLId": "",
+        "HttpVersion": "http2",
+        "IsIPV6Enabled": true,
+        "Staging": false
+      },
+      {
+        "Id": "E3ORIGINCCCCCCC",
+        "ARN": "arn:aws:cloudfront::123456789012:distribution/E3ORIGINCCCCCCC",
+        "Status": "Deployed",
+        "LastModifiedTime": "2026-10-28T09:14:02+00:00",
+        "DomainName": "e3originccccccc.cloudfront.net",
+        "Aliases": {
+          "Quantity": 1,
+          "Items": [
+            "docs.example.com"
+          ]
+        },
+        "Origins": {
+          "Quantity": 1,
+          "Items": [
+            {
+              "Id": "origin-docs",
+              "DomainName": "docs-legacy.internal.example.com",
+              "OriginPath": "",
+              "CustomHeaders": {
+                "Quantity": 0
+              },
+              "CustomOriginConfig": {
+                "HTTPPort": 80,
+                "HTTPSPort": 443,
+                "OriginProtocolPolicy": "http-only",
+                "OriginSslProtocols": {
+                  "Quantity": 3,
+                  "Items": [
+                    "SSLv3",
+                    "TLSv1",
+                    "TLSv1.2"
+                  ]
+                },
+                "OriginReadTimeout": 30,
+                "OriginKeepaliveTimeout": 5
+              }
+            }
+          ]
+        },
+        "DefaultCacheBehavior": {
+          "TargetOriginId": "origin-docs",
+          "ViewerProtocolPolicy": "redirect-to-https",
+          "TrustedSigners": {
+            "Enabled": false,
+            "Quantity": 0
+          },
+          "ForwardedValues": {
+            "QueryString": false,
+            "Cookies": {
+              "Forward": "none"
+            },
+            "Headers": {
+              "Quantity": 0
+            },
+            "QueryStringCacheKeys": {
+              "Quantity": 0
+            }
+          },
+          "MinTTL": 0,
+          "Compress": true
+        },
+        "CacheBehaviors": {
+          "Quantity": 0,
+          "Items": []
+        },
+        "CustomErrorResponses": {
+          "Quantity": 0
+        },
+        "Comment": "docs edge, origin is an old nginx box",
+        "PriceClass": "PriceClass_All",
+        "Enabled": true,
+        "ViewerCertificate": {
+          "ACMCertificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/9f1c0e2a-7b44-4d19-93a1-2f0c9e8a1b33",
+          "SSLSupportMethod": "sni-only",
+          "MinimumProtocolVersion": "TLSv1.2_2021",
+          "Certificate": "arn:aws:acm:us-east-1:123456789012:certificate/9f1c0e2a-7b44-4d19-93a1-2f0c9e8a1b33",
+          "CertificateSource": "acm"
+        },
+        "Restrictions": {
+          "GeoRestriction": {
+            "RestrictionType": "none",
+            "Quantity": 0
+          }
+        },
+        "WebACLId": "",
+        "HttpVersion": "http2",
+        "IsIPV6Enabled": true,
+        "Staging": false
+      },
+      {
+        "Id": "E4HARDENEDDDDDD",
+        "ARN": "arn:aws:cloudfront::123456789012:distribution/E4HARDENEDDDDDD",
+        "Status": "Deployed",
+        "LastModifiedTime": "2026-10-28T09:14:02+00:00",
+        "DomainName": "e4hardenedddddd.cloudfront.net",
+        "Aliases": {
+          "Quantity": 1,
+          "Items": [
+            "assets.example.com"
+          ]
+        },
+        "Origins": {
+          "Quantity": 1,
+          "Items": [
+            {
+              "Id": "origin-assets",
+              "DomainName": "assets-bucket.s3.us-east-1.amazonaws.com",
+              "OriginPath": "",
+              "CustomHeaders": {
+                "Quantity": 0
+              },
+              "S3OriginConfig": {
+                "OriginAccessIdentity": ""
+              }
+            }
+          ]
+        },
+        "DefaultCacheBehavior": {
+          "TargetOriginId": "origin-assets",
+          "ViewerProtocolPolicy": "https-only",
+          "TrustedSigners": {
+            "Enabled": false,
+            "Quantity": 0
+          },
+          "ForwardedValues": {
+            "QueryString": false,
+            "Cookies": {
+              "Forward": "none"
+            },
+            "Headers": {
+              "Quantity": 0
+            },
+            "QueryStringCacheKeys": {
+              "Quantity": 0
+            }
+          },
+          "MinTTL": 0,
+          "Compress": true
+        },
+        "CacheBehaviors": {
+          "Quantity": 1,
+          "Items": [
+            {
+              "TargetOriginId": "origin-assets",
+              "ViewerProtocolPolicy": "https-only",
+              "TrustedSigners": {
+                "Enabled": false,
+                "Quantity": 0
+              },
+              "ForwardedValues": {
+                "QueryString": false,
+                "Cookies": {
+                  "Forward": "none"
+                },
+                "Headers": {
+                  "Quantity": 0
+                },
+                "QueryStringCacheKeys": {
+                  "Quantity": 0
+                }
+              },
+              "MinTTL": 0,
+              "Compress": true,
+              "PathPattern": "/img/*"
+            }
+          ]
+        },
+        "CustomErrorResponses": {
+          "Quantity": 0
+        },
+        "Comment": "static assets, built this year",
+        "PriceClass": "PriceClass_All",
+        "Enabled": true,
+        "ViewerCertificate": {
+          "ACMCertificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/9f1c0e2a-7b44-4d19-93a1-2f0c9e8a1b33",
+          "SSLSupportMethod": "sni-only",
+          "MinimumProtocolVersion": "TLSv1.2_2021",
+          "Certificate": "arn:aws:acm:us-east-1:123456789012:certificate/9f1c0e2a-7b44-4d19-93a1-2f0c9e8a1b33",
+          "CertificateSource": "acm"
+        },
+        "Restrictions": {
+          "GeoRestriction": {
+            "RestrictionType": "none",
+            "Quantity": 0
+          }
+        },
+        "WebACLId": "",
+        "HttpVersion": "http2",
+        "IsIPV6Enabled": true,
+        "Staging": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "DistributionList": {
+    "Marker": "",
+    "MaxItems": 100,
+    "IsTruncated": false,
+    "Quantity": 1,
+    "Items": [
+      {
+        "Id": "E7HTTPGGGGGGGGG",
+        "ARN": "arn:aws:cloudfront::123456789012:distribution/E7HTTPGGGGGGGGG",
+        "Status": "Deployed",
+        "LastModifiedTime": "2026-10-28T09:14:02+00:00",
+        "DomainName": "e7httpggggggggg.cloudfront.net",
+        "Aliases": {
+          "Quantity": 1,
+          "Items": [
+            "go.example.com"
+          ]
+        },
+        "Origins": {
+          "Quantity": 1,
+          "Items": [
+            {
+              "Id": "origin-shim",
+              "DomainName": "shim-alb.example.com",
+              "OriginPath": "",
+              "CustomHeaders": {
+                "Quantity": 0
+              },
+              "CustomOriginConfig": {
+                "HTTPPort": 80,
+                "HTTPSPort": 443,
+                "OriginProtocolPolicy": "https-only",
+                "OriginSslProtocols": {
+                  "Quantity": 1,
+                  "Items": [
+                    "TLSv1.2"
+                  ]
+                },
+                "OriginReadTimeout": 30,
+                "OriginKeepaliveTimeout": 5
+              }
+            }
+          ]
+        },
+        "DefaultCacheBehavior": {
+          "TargetOriginId": "origin-shim",
+          "ViewerProtocolPolicy": "allow-all",
+          "TrustedSigners": {
+            "Enabled": false,
+            "Quantity": 0
+          },
+          "ForwardedValues": {
+            "QueryString": false,
+            "Cookies": {
+              "Forward": "none"
+            },
+            "Headers": {
+              "Quantity": 0
+            },
+            "QueryStringCacheKeys": {
+              "Quantity": 0
+            }
+          },
+          "MinTTL": 0,
+          "Compress": true
+        },
+        "CacheBehaviors": {
+          "Quantity": 0,
+          "Items": []
+        },
+        "CustomErrorResponses": {
+          "Quantity": 0
+        },
+        "Comment": "redirect shim nobody tightened",
+        "PriceClass": "PriceClass_All",
+        "Enabled": true,
+        "ViewerCertificate": {
+          "ACMCertificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/9f1c0e2a-7b44-4d19-93a1-2f0c9e8a1b33",
+          "SSLSupportMethod": "sni-only",
+          "MinimumProtocolVersion": "TLSv1.2_2021",
+          "Certificate": "arn:aws:acm:us-east-1:123456789012:certificate/9f1c0e2a-7b44-4d19-93a1-2f0c9e8a1b33",
+          "CertificateSource": "acm"
+        },
+        "Restrictions": {
+          "GeoRestriction": {
+            "RestrictionType": "none",
+            "Quantity": 0
+          }
+        },
+        "WebACLId": "",
+        "HttpVersion": "http2",
+        "IsIPV6Enabled": true,
+        "Staging": false
+      }
+    ]
+  }
+}
