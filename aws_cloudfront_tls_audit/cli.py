@@ -15,7 +15,7 @@ from . import __version__
 from .collect import list_distributions, make_client
 from .model import AwsError, severity_rank
 from .report import render, sort_findings
-from .rules import RULES, audit
+from .rules import RULES, SECURITY_POLICY_ORDER, audit
 
 EXIT_OK = 0
 EXIT_FINDINGS = 1
@@ -54,6 +54,16 @@ def build_parser() -> argparse.ArgumentParser:
         default="",
         metavar="RULE,RULE",
         help="comma-separated rules to drop from the output and the exit code",
+    )
+    parser.add_argument(
+        "--min-policy",
+        choices=SECURITY_POLICY_ORDER,
+        metavar="POLICY",
+        help=(
+            "report BELOW_POLICY_FLOOR for any MinimumProtocolVersion older than "
+            "POLICY, e.g. TLSv1.2_2025 to match Security Hub CloudFront.15 "
+            "(default: off; choices: " + ", ".join(SECURITY_POLICY_ORDER) + ")"
+        ),
     )
     parser.add_argument(
         "--from-file",
@@ -115,7 +125,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"aws-cloudfront-tls-audit: {exc}", file=sys.stderr)
         return EXIT_AWS_ERROR
 
-    findings = sort_findings(audit(distributions, ignore))
+    findings = sort_findings(audit(distributions, ignore, args.min_policy))
     print(render(findings, args.format, len(distributions)))
     return exit_code(findings, args.fail_on)
 

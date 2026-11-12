@@ -26,11 +26,31 @@ What usually hides in there:
 | `VIEWER_ALLOWS_HTTP` | medium | the default or any ordered behavior uses `ViewerProtocolPolicy: allow-all` |
 | `ORIGIN_INSECURE` | high | `OriginProtocolPolicy` is `http-only`, or `match-viewer` while some viewer behavior allows HTTP |
 | `ORIGIN_WEAK_SSL_PROTOCOL` | medium | `OriginSslProtocols` still contains `SSLv3` or `TLSv1` |
+| `BELOW_POLICY_FLOOR` | low | only with `--min-policy`: `MinimumProtocolVersion` is a TLS 1.2+ policy older than the floor |
 
 One finding per distribution per rule. A distribution with eight `allow-all`
 behaviors is a single `VIEWER_ALLOWS_HTTP` finding that lists all eight path
 patterns, not eight lines of the same sentence. Every finding carries the exact
 field to change and the `update-distribution` call shape.
+
+### Minimum security policy
+
+`WEAK_MIN_PROTOCOL` only catches policies that still negotiate below TLS 1.2, so
+`TLSv1.2_2018` and `TLSv1.2_2019` pass it. A compliance scanner can be stricter:
+Security Hub [CloudFront.15](https://docs.aws.amazon.com/securityhub/latest/userguide/cloudfront-controls.html#cloudfront-15)
+passes only `TLSv1.2_2025` and `TLSv1.3_2025` (as documented on 2026-11-12).
+`--min-policy` sets the floor:
+
+```bash
+aws-cloudfront-tls-audit --min-policy TLSv1.2_2025 --fail-on low
+```
+
+Policies are compared in this order, weakest first: `SSLv3`, `TLSv1`,
+`TLSv1_2016`, `TLSv1.1_2016`, `TLSv1.2_2018`, `TLSv1.2_2019`, `TLSv1.2_2021`,
+`TLSv1.2_2025`, `TLSv1.3_2025`. A distribution below the floor gets one
+`BELOW_POLICY_FLOOR` finding; one that is already a `WEAK_MIN_PROTOCOL` finding
+does not get a second one. A value the tool does not know (a policy newer than
+this list) is not judged. Without `--min-policy` the rule does not run.
 
 ## How it works
 
@@ -88,6 +108,7 @@ medium    E2WEAKTLSBBBBBB   api.example.com   VIEWER_ALLOWS_HTTP
 | `--distribution ID` | limit to this distribution id, repeatable |
 | `--format table\|json\|csv` | output format, default `table` |
 | `--fail-on high\|medium\|low\|never` | lowest severity that exits 1, default `high` |
+| `--min-policy POLICY` | report `BELOW_POLICY_FLOOR` for policies older than `POLICY`, default off |
 | `--ignore RULE,RULE` | drop rules from the output *and* the exit code |
 | `--from-file PATH` | audit a recorded `ListDistributions` response instead of calling AWS |
 
