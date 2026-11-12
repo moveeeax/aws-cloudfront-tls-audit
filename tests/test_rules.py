@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import pytest
 
-from aws_cloudfront_tls_audit.rules import RECOMMENDED_MIN_PROTOCOL, RULES, audit
+from aws_cloudfront_tls_audit.rules import (
+    RECOMMENDED_MIN_PROTOCOL,
+    RULES,
+    SECURITY_POLICY_ORDER,
+    audit,
+)
 
 
 def by_rule(findings):
@@ -109,3 +114,63 @@ def test_viewer_http_only_fixture_trips_exactly_one_rule(viewer_http_only):
 @pytest.mark.parametrize("rule,severity", sorted(RULES.items()))
 def test_every_rule_has_a_known_severity(rule, severity):
     assert severity in ("high", "medium", "low")
+
+
+def test_below_policy_floor_is_off_by_default(hardened):
+    assert "BELOW_POLICY_FLOOR" not in by_rule(audit(hardened))
+
+
+def test_below_policy_floor_flags_tls12_policies_under_the_floor(hardened):
+    (finding,) = by_rule(audit(hardened, min_policy="TLSv1.2_2021"))["BELOW_POLICY_FLOOR"]
+    assert finding.severity == "low"
+    assert finding.targets == ("TLSv1.2_2019",)
+    assert "TLSv1.2_2021" in finding.detail
+    assert "TLSv1.2_2021" in finding.remediation
+
+
+def test_below_policy_floor_2025_catches_2021(hardened):
+    findings = by_rule(audit(hardened, min_policy="TLSv1.2_2025"))["BELOW_POLICY_FLOOR"]
+    assert sorted(f.targets for f in findings) == [("TLSv1.2_2019",), ("TLSv1.2_2021",)]
+
+
+@pytest.mark.parametrize("current", ["TLSv1.2_2025", "TLSv1.3_2025"])
+def test_policy_at_or_above_floor_passes(hardened, current):
+    dist = hardened[0]
+    dist["ViewerCertificate"]["MinimumProtocolVersion"] = current
+    assert audit([dist], min_policy="TLSv1.2_2025") == []
+
+
+def test_tls13_floor_rejects_tls12_2025(hardened):
+    dist = hardened[0]
+    dist["ViewerCertificate"]["MinimumProtocolVersion"] = "TLSv1.2_2025"
+    assert [f.rule for f in audit([dist], min_policy="TLSv1.3_2025")] == ["BELOW_POLICY_FLOOR"]
+
+
+def test_weak_protocol_is_not_reported_twice(messy):
+    grouped = by_rule(audit(messy, min_policy="TLSv1.2_2021"))
+    assert "BELOW_POLICY_FLOOR" not in grouped
+    assert len(grouped["WEAK_MIN_PROTOCOL"]) == 2
+
+
+def test_unknown_policy_value_is_not_judged(hardened):
+    dist = hardened[0]
+    dist["ViewerCertificate"]["MinimumProtocolVersion"] = "TLSv1.3_2030"
+    assert audit([dist], min_policy="TLSv1.3_2025") == []
+
+
+def test_below_policy_floor_can_be_ignored(hardened):
+    findings = audit(hardened, ignore=["BELOW_POLICY_FLOOR"], min_policy="TLSv1.3_2025")
+    assert findings == []
+
+
+def test_unknown_min_policy_is_rejected(hardened):
+    with pytest.raises(ValueError):
+        audit(hardened, min_policy="TLSv9")
+
+
+def test_security_policy_order_matches_botocore_enum():
+    import botocore.session
+
+    model = botocore.session.get_session().get_service_model("cloudfront")
+    enum = model.shape_for("MinimumProtocolVersion").enum
+    assert sorted(SECURITY_POLICY_ORDER) == sorted(enum)

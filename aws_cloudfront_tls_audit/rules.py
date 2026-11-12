@@ -1,4 +1,4 @@
-"""The five TLS rules, evaluated against a raw DistributionSummary dict."""
+"""The TLS rules, evaluated against a raw DistributionSummary dict."""
 
 from __future__ import annotations
 
@@ -12,6 +12,21 @@ from .model import Finding
 WEAK_MIN_PROTOCOLS = ("SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016")
 RECOMMENDED_MIN_PROTOCOL = "TLSv1.2_2021"
 
+#: Every ViewerCertificate.MinimumProtocolVersion CloudFront accepts, weakest
+#: first (the botocore ``MinimumProtocolVersion`` enum, reordered). ``--min-policy``
+#: picks a floor from this list.
+SECURITY_POLICY_ORDER = (
+    "SSLv3",
+    "TLSv1",
+    "TLSv1_2016",
+    "TLSv1.1_2016",
+    "TLSv1.2_2018",
+    "TLSv1.2_2019",
+    "TLSv1.2_2021",
+    "TLSv1.2_2025",
+    "TLSv1.3_2025",
+)
+
 #: Origin SSL protocols that should never appear in an origin handshake.
 WEAK_ORIGIN_SSL_PROTOCOLS = ("SSLv3", "TLSv1")
 
@@ -21,6 +36,7 @@ RULES: dict[str, str] = {
     "VIEWER_ALLOWS_HTTP": "medium",
     "ORIGIN_INSECURE": "high",
     "ORIGIN_WEAK_SSL_PROTOCOL": "medium",
+    "BELOW_POLICY_FLOOR": "low",
 }
 
 UPDATE_CALL = (
@@ -187,6 +203,35 @@ def check_origin_weak_ssl_protocol(dist: dict) -> Finding | None:
     )
 
 
+def check_below_policy_floor(dist: dict, floor: str) -> Finding | None:
+    """A TLS 1.2+ policy that is still older than the ``--min-policy`` floor.
+
+    Policies in WEAK_MIN_PROTOCOLS are left to WEAK_MIN_PROTOCOL so one setting
+    does not produce two findings. Values missing from SECURITY_POLICY_ORDER
+    (a policy newer than this tool) are not judged.
+    """
+    cert = dist.get("ViewerCertificate") or {}
+    current = cert.get("MinimumProtocolVersion")
+    if current in WEAK_MIN_PROTOCOLS or current not in SECURITY_POLICY_ORDER:
+        return None
+    if SECURITY_POLICY_ORDER.index(current) >= SECURITY_POLICY_ORDER.index(floor):
+        return None
+    return _finding(
+        "BELOW_POLICY_FLOOR",
+        dist,
+        detail=(
+            f"ViewerCertificate.MinimumProtocolVersion is {current}, older than "
+            f"the required floor {floor}"
+        ),
+        remediation=(
+            f"set ViewerCertificate.MinimumProtocolVersion to {floor} or newer "
+            f"(current: {current}); "
+            + UPDATE_CALL.format(dist_id=dist.get("Id", "<id>"))
+        ),
+        targets=(current,),
+    )
+
+
 CHECKS: tuple[Callable[[dict], Finding | None], ...] = (
     check_default_cert_with_alias,
     check_weak_min_protocol,
@@ -208,17 +253,28 @@ def _finding(rule: str, dist: dict, *, detail: str, remediation: str, targets=()
     )
 
 
-def audit(distributions: Iterable[dict], ignore: Iterable[str] = ()) -> list[Finding]:
+def audit(
+    distributions: Iterable[dict],
+    ignore: Iterable[str] = (),
+    min_policy: str | None = None,
+) -> list[Finding]:
     """Run every rule over every distribution, dropping ignored rules.
 
     Ignored rules disappear from the output *and* from the exit code; that is
-    the whole point of ``--ignore``.
+    the whole point of ``--ignore``. BELOW_POLICY_FLOOR only runs when
+    ``min_policy`` is set.
     """
+    if min_policy is not None and min_policy not in SECURITY_POLICY_ORDER:
+        raise ValueError(f"unknown security policy: {min_policy}")
     skip = {r.strip().upper() for r in ignore if r.strip()}
     findings: list[Finding] = []
     for dist in distributions:
         for check in CHECKS:
             finding = check(dist)
+            if finding is not None and finding.rule not in skip:
+                findings.append(finding)
+        if min_policy is not None:
+            finding = check_below_policy_floor(dist, min_policy)
             if finding is not None and finding.rule not in skip:
                 findings.append(finding)
     return findings

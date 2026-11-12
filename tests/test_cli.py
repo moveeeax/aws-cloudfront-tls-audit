@@ -130,3 +130,20 @@ def test_version_flag(capsys):
     with pytest.raises(SystemExit) as exc:
         main(["--version"])
     assert exc.value.code == 0
+
+
+def test_min_policy_flag_adds_low_findings(capsys, examples_dir):
+    fixture = str(examples_dir / "hardened-account.json")
+    code, out, _ = run(capsys, "--from-file", fixture, "--min-policy", "TLSv1.2_2021", "--format", "json")
+    payload = json.loads(out)
+    assert code == 0  # low stays under the default --fail-on high
+    assert [f["rule"] for f in payload["findings"]] == ["BELOW_POLICY_FLOOR"]
+    assert payload["summary"]["low"] == 1
+    code, _, _ = run(capsys, "--from-file", fixture, "--min-policy", "TLSv1.2_2021", "--fail-on", "low")
+    assert code == 1
+
+
+def test_min_policy_rejects_unknown_value(capsys, examples_dir):
+    with pytest.raises(SystemExit) as exc:
+        main(["--from-file", str(examples_dir / "hardened-account.json"), "--min-policy", "TLSv9"])
+    assert exc.value.code == 2
